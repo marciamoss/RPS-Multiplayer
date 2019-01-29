@@ -1,0 +1,42 @@
+#player1Game,#player2Game,#gameResults{
+    border-style: solid;
+    height: 200px;
+    text-align: center;
+    font-weight: bold;
+    border-color: rgb(0, 82, 102);
+}
+#greeting{
+    text-align: center;
+    font-weight: bold;
+    color: blue;
+    font-size: 20px;
+}
+#chat{
+    width: 70%;
+    background-color: antiquewhite;
+    border-style: solid;
+    border-color: rgb(0, 82, 102);
+}
+
+#chatBox{
+    width: 70%;
+    height: 200px;
+    background-color: antiquewhite;
+    border-style: solid;
+    border-color: rgb(0, 82, 102);
+
+}
+body{
+    /* background-image: url('../images/bg.jpg');
+    background-repeat: no-repeat;
+    background-size: cover; */
+    background-color: antiquewhite;
+    border-color: rgb(0, 82, 102);
+
+}
+
+#player-name{
+    background-color: antiquewhite;
+    border-style: solid;
+    border-color: rgb(0, 82, 102);
+}
