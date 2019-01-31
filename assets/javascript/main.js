@@ -1,14 +1,22 @@
 $(document).ready(function() {  
 
-    var players=[],player1result, player2result,finalResult=[];
+    var players=[],player1result, player2result, player1, player2, player1W, player2W;
     
     //function for the player to pick their answer
-    function pickAnswer(idName,resultDB,player){
+    function pickAnswer(idName,idName2,resultDB,player){
             $("#rock").on("click", function(event){
             var result=$(this).text();
             $(("#paper,#scissors")).off("click");
             $(idName).css("border-color", "black"); 
+            if(idName=='#player1Game'){
+                $(idName2).css("border-color", "yellow"); 
+                $("#greeting").html("Waiting for "+'player2'+" to choose");
+            }
+            if(idName=='#player2Game'){
+                $("#greeting").html("Waiting for results");
+            }
             $(idName).html(player+"<br>"+"Wins:0 Losses:0");
+            
             database.ref(resultDB).set({
                 result: result 
             });
@@ -17,7 +25,15 @@ $(document).ready(function() {
             var result=$(this).text();
             $(("#rock,#scissors")).off("click");
             $(idName).css("border-color", "black"); 
+            if(idName=='#player1Game'){
+                $(idName2).css("border-color", "yellow"); 
+                $("#greeting").html("Waiting for "+'player2'+" to choose");
+            }
+            if(idName=='#player2Game'){
+                $("#greeting").html("Waiting for results");
+            }
             $(idName).html(player+"<br>"+"Wins:0 Losses:0");
+            
             database.ref(resultDB).set({
                 result: result 
             });
@@ -26,6 +42,13 @@ $(document).ready(function() {
             var result=$(this).text();
             $(("#rock,#paper")).off("click");
             $(idName).css("border-color", "black"); 
+            if(idName=='#player1Game'){
+                $(idName2).css("border-color", "yellow"); 
+                $("#greeting").html("Waiting for "+'player2'+" to choose");
+            }
+            if(idName=='#player2Game'){
+                $("#greeting").html("Waiting for results");
+            }
             $(idName).html(player+"<br>"+"Wins:0 Losses:0");
             database.ref(resultDB).set({
                 result: result 
@@ -49,6 +72,7 @@ $(document).ready(function() {
     
     //remove previous playe data info
     database.ref("/player1").remove();
+    database.ref("/latestplayerid").remove();
     database.ref("/player1result").remove();
     database.ref("/player2").remove();
     database.ref("/player2result").remove();
@@ -85,130 +109,162 @@ $(document).ready(function() {
         uniqueplayers = players.filter(function(item, pos) {
             return players.indexOf(item) == pos;
         });
-        
+
+           
+        database.ref("latestplayerid").set({
+            id: uniqueplayers[0]
+        });
+ 
         // Display the viewer count in the html.
         // The number of online users is the number of children in the connections list.
-        
-        if(snapshot.numChildren()<=2 && snapshot.numChildren()>0){
-            var keys = Object.keys(snapshot);     
-               
-            $(":button").on("click", function(event){
-                
-                if (($(this).attr("id")=='start') ){
-                    if(uniqueplayers.length==2 && snapshot.node_.children_.root_.key==uniqueplayers[0]){   
-                        var player1=$("#player-name").val();
-                        $("#greeting").html("Hi "+player1+" you are player1 <br>"+"It's Your Turn!!!");
-                        $("#player1Game").html("<p>"+player1+"</p>"+"<div id='rock'>Rock</div><div id='paper'>Paper</div><div id='scissors'>Scissors</div>"+"<div id='resStat'>Wins:0 Losses:0</div>");
-                        
-                        pickAnswer(idName='#player1Game',resultDB="player1result",player=player1);
-                        
-                        database.ref("player1").set({
-                            name: player1 
+        var keys = Object.keys(snapshot);     
+            
+        $(":button").on("click", function(event){
+            if (($(this).attr("id")=='start') ){
+                database.ref("/player1").once("value").then(function(getplayer1) {
+                    var player1Exists = getplayer1.exists();
+                    if (!player1Exists){
+                        database.ref("/latestplayerid").on("child_added", function(playerid) {
+                            var playerid=playerid.val();
+                            if(uniqueplayers.length==1){     
+                                player1=$("#player-name").val();
+                                $("#greeting").html("Hi "+player1+" you are player1 <br>"+"It's Your Turn!!!");
+                                $("#player1Game").css("border-color", "yellow"); 
+                                $("#player1Game").html("<p>"+player1+"</p>"+"<div id='rock'>Rock</div><div id='paper'>Paper</div><div id='scissors'>Scissors</div>"+"<div id='resStat'>Wins:0 Losses:0</div>");
+                                
+                                pickAnswer(idName='#player1Game',idName2='#player2Game',resultDB="player1result",player=player1);
+                                
+                                database.ref("player1").set({
+                                    name: player1 
+                                });
+                                database.ref("/player1result").on("child_added", function(getplayer1result) {
+                                    player1result=getplayer1result.val();
+                                    if (player1result != ""){
+                                        if(uniqueplayers.length==1){
+                                            $("#greeting").html("There is no player2, Try Again!");
+                                            setTimeout(function(){ location.reload(); }, 3000);
+                                        }
+                                    }
+
+                                });
+                            }
+                            else if(uniqueplayers.length==2){   
+                                player1=$("#player-name").val();
+                                $("#greeting").html("Hi "+player1+" you are player1 <br>"+"It's Your Turn!!!");
+                                $("#player1Game").css("border-color", "yellow"); 
+                                $("#player1Game").html("<p>"+player1+"</p>"+"<div id='rock'>Rock</div><div id='paper'>Paper</div><div id='scissors'>Scissors</div>"+"<div id='resStat'>Wins:0 Losses:0</div>");
+                                
+                                pickAnswer(idName='#player1Game',idName2='#player2Game',resultDB="player1result",player=player1);
+                                
+                                database.ref("player1").set({
+                                    name: player1 
+                                });
+                            }
                         });
                     }
-                    if(uniqueplayers.length==1 && snapshot.node_.children_.root_.key==uniqueplayers[0]){
-                        var player2=$("#player-name").val();
-                        $("#greeting").html("Hi "+player2+" you are player2 <br>");
-                        database.ref("player2").set({
-                            name: player2
-                        });  
-                    } 
-                    database.ref("/player1").on("child_added", function(getplayer1) {
-                        player1=getplayer1.val();
-                        if(uniqueplayers.length==1 && snapshot.node_.children_.root_.key==uniqueplayers[0]){
-                            $("#greeting").append("Waiting for "+player1+" to choose");
-                            $("#player1Game").html(player1+"<br>"+"Wins:0 Losses:0");
-                        }
-                        $("#player1Game").css("border-color", "yellow"); 
-                    }, function(errorObject) {
-                        console.log("Errors handled: " + errorObject.code);
-                    });
-                    database.ref("/player2").on("child_added", function(getplayer2) {
-                        player2=getplayer2.val();
-                        if(uniqueplayers.length==2 && snapshot.node_.children_.root_.key==uniqueplayers[0]){   
-                            $("#greeting").text("Waiting for "+player2+" to choose");
-                        }
-                        $("#player2Game").html(player2+"<br>"+"Wins:0 Losses:0");
-                    }, function(errorObject) {
-                        console.log("Errors handled: " + errorObject.code);
-                    });
-                    database.ref("/player1result").on("child_added", function(player1result) {
-                        player1result=player1result.val();
-                        finalResult.push(player1result);
-                        if (player2==undefined){
-                            player2='player2';
-                        }
-                        $("#player2Game").html(player2+"<br>"+"Wins:0 Losses:0");
-                        if(uniqueplayers.length==1 && snapshot.node_.children_.root_.key==uniqueplayers[0]){
-                            $("#greeting").html("Hi "+player2+" It's Your Turn!!!");
-                            $("#player1Game").css("border-color", "black"); 
-                            $("#player2Game").css("border-color", "yellow"); 
-                            $("#player2Game").html("<p>"+player2+"</p>"+"<div id='rock'>Rock</div><div id='paper'>Paper</div><div id='scissors'>Scissors</div>"+"<div id='resStat'>Wins:0 Losses:0</div>");
-                                                        
-                            pickAnswer(idName='#player2Game',resultDB="player2result",player=player2);
-                            
-                        }
-                        if(uniqueplayers.length==2 && snapshot.node_.children_.root_.key==uniqueplayers[0]){   
-                            if (player2==undefined){
-                                player2='player2';
-                            }
-                            $("#greeting").text("Waiting for "+player2+" to choose");
-                            $("#player2Game").css("border-color", "yellow"); 
-                        }
-                    }, function(errorObject) {
-                        console.log("Errors handled: " + errorObject.code);
-                    });
-                    database.ref("/player2result").on("child_added", function(player2result) {
-                        $("#player2Game").css("border-color", "black"); 
-                        player2result=player2result.val();
-                        finalResult.push(player2result);
-
-                        uniqueresult = finalResult.filter(function(item, pos) {
-                            return finalResult.indexOf(item) == pos;
+                    else{
+                        database.ref("/player1").once("value").then(function(getplayer1) {
+                            player1=getplayer1.val().name;
+                            if(uniqueplayers.length==1){
+                                player2=$("#player-name").val();
+                                $("#greeting").html("Hi "+player2+" you are player2 <br>Waiting for "+player1+" to choose");
+                                $("#player1Game").css("border-color", "yellow"); 
+                                database.ref("player2").set({
+                                    name: player2
+                                });  
+                                database.ref("/player1result").on("child_added", function(getplayer1result) {
+                                    player1result=getplayer1result.val();
+                                    if(uniqueplayers.length==1){
+                                        $("#greeting").html("Hi "+player2+" It's Your Turn!!!");
+                                        $("#player1Game").html("Wins:0 Losses:0");
+                                        $("#player1Game").css("border-color", "black"); 
+                                        $("#player2Game").css("border-color", "yellow"); 
+                                        $("#player2Game").html("<p>"+player2+"</p>"+"<div id='rock'>Rock</div><div id='paper'>Paper</div><div id='scissors'>Scissors</div>"+"<div id='resStat'>Wins:0 Losses:0</div>");
+                                                                    
+                                        pickAnswer(idName='#player2Game',idName2='#player1Game',resultDB="player2result",player=player2);
+                                        
+                                    }
+                                });
+                            } 
                         });
-
-                        $("#player1Game").html(player1+"<br>"+uniqueresult[0]); 
-                        if(uniqueresult.length==2){
-                            $("#player2Game").html(player2+"<br>"+uniqueresult[1]);
-                        }
-                        if(uniqueresult.length==1){
-                            $("#player2Game").html(player2+"<br>"+uniqueresult[0]);
-                        }
-                        
-                        $("#greeting").text("Final Results!");
-                        if(uniqueresult[0]=="Scissors"){
-                            if(uniqueresult.length==1){
-                                $("#gameResults").html("Its a Tie!!"); 
-                            }else if(uniqueresult[1]=="Paper"){
-                                $("#gameResults").html(player1+"<br>Wins!!"); 
-                            }else if(uniqueresult[1]=="Rock"){
-                                $("#gameResults").html(player2+"<br>Wins!!"); 
+                    }
+                });
+                database.ref("/player2result").on("child_added", function(getplayer2result) {
+                    player2result=getplayer2result.val();
+                    database.ref("/player1result").once("value").then(function(getplayer1result) {
+                        player1resultExists = getplayer1result.exists();
+                        player1result=getplayer1result.val().result;
+                        if(player1resultExists){
+                            $("#greeting").text("Final Results!");
+                            if(uniqueplayers.length==2){
+                                $("#player2Game").css("border-color", "black"); 
                             }
-                        }else if(uniqueresult[0]=="Paper"){
-                            if(uniqueresult[1]=="Scissors"){
-                                $("#gameResults").html(player2+"<br>Wins!!");
-                            }else if(uniqueresult.length==1){
-                                $("#gameResults").html("Its a Tie!!"); 
-                            }else if(uniqueresult[1]=="Rock"){
-                                $("#gameResults").html(player1+"<br>Wins!!"); 
+                            if(player1result=="Scissors"){
+                                if(player2result=="Scissors"){
+                                    $("#gameResults").html("Its a Tie!!"); 
+                                    player1W=0;player2W=0;
+                                }else if(player2result=="Paper"){
+                                    $("#gameResults").html(player1+"<br>Wins!!"); 
+                                    player1W=1;player2W=0;
+                                }else if(player2result=="Rock"){
+                                    $("#gameResults").html(player2+"<br>Wins!!"); 
+                                    player1W=0;player2W=1;
+                                }
+                            }else if(player1result=="Paper"){
+                                if(player2result=="Scissors"){
+                                    $("#gameResults").html(player2+"<br>Wins!!");
+                                    player1W=0;player2W=1;
+                                }else if(player2result=="Paper"){
+                                    $("#gameResults").html("Its a Tie!!"); 
+                                    player1W=0;player2W=0;
+                                }else if(player2result=="Rock"){
+                                    $("#gameResults").html(player1+"<br>Wins!!"); 
+                                    player1W=1;player2W=0;
+                                }
+                            }else if(player1result=="Rock"){
+                                if(player2result=="Scissors"){
+                                    $("#gameResults").html(player1+"<br>Wins!!"); 
+                                    player1W=1;player2W=0;
+                                }else if(player2result=="Paper"){
+                                    $("#gameResults").html(player2+"<br>Wins!!");
+                                    player1W=0;player2W=1;
+                                }else if(player2result=="Rock"){
+                                    $("#gameResults").html("Its a Tie!!"); 
+                                    player1W=0;player2W=0;
+                                }
                             }
-                        }else if(uniqueresult[0]=="Rock"){
-                            if(uniqueresult[1]=="Scissors"){
-                                $("#gameResults").html(player1+"<br>Wins!!"); 
-                            }else if(uniqueresult[1]=="Paper"){
-                                $("#gameResults").html(player2+"<br>Wins!!");
-                            }else if(uniqueresult.length==1){
-                                $("#gameResults").html("Its a Tie!!"); 
+                            if(uniqueplayers.length==2){
+                                database.ref("/player2").once("value").then(function(getplayer2) {
+                                    player2=getplayer2.val().name;
+                                
+                                    if(player1W==1){
+                                        $("#player1Game").css("border-color", "red"); 
+                                        $("#player1Game").html(player1+"<br>The Winner!!"); 
+                                        $("#player2Game").html(player2+"<br>Well not this time!!"); 
+                                    }
+                                    else if(player2W==1){
+                                        $("#player2Game").css("border-color", "red"); 
+                                        $("#player2Game").html(player2+"<br>The Winner!!"); 
+                                        $("#player1Game").html(player1+"<br>Well not this time!!"); 
+                                    }
+                                });
                             }
+                            if(uniqueplayers.length==1){
+                                if(player1W==1){
+                                    $("#player1Game").css("border-color", "red"); 
+                                    $("#player1Game").html(player1+"<br>The Winner!!"); 
+                                    $("#player2Game").html(player2+"<br>Well not this time!!"); 
+                                }
+                                else if(player2W==1){
+                                    $("#player2Game").css("border-color", "red"); 
+                                    $("#player2Game").html(player2+"<br>The Winner!!"); 
+                                    $("#player1Game").html(player1+"<br>Well not this time!!"); 
+                                }  
+                            }                            
                         }
-                    }, function(errorObject) {
-                        console.log("Errors handled: " + errorObject.code);
                     });
-                }  
-                
-                
-            });
-        }
-        
+                });
+            }  
+        });
     });
 });
