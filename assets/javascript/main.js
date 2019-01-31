@@ -201,65 +201,71 @@ $(document).ready(function() {
                             }
                             if(player1result=="Scissors"){
                                 if(player2result=="Scissors"){
-                                    $("#gameResults").html("Its a Tie!!"); 
                                     player1W=0;player2W=0;
                                 }else if(player2result=="Paper"){
-                                    $("#gameResults").html(player1+"<br>Wins!!"); 
                                     player1W=1;player2W=0;
                                 }else if(player2result=="Rock"){
-                                    $("#gameResults").html(player2+"<br>Wins!!"); 
                                     player1W=0;player2W=1;
                                 }
                             }else if(player1result=="Paper"){
                                 if(player2result=="Scissors"){
-                                    $("#gameResults").html(player2+"<br>Wins!!");
                                     player1W=0;player2W=1;
                                 }else if(player2result=="Paper"){
-                                    $("#gameResults").html("Its a Tie!!"); 
                                     player1W=0;player2W=0;
                                 }else if(player2result=="Rock"){
-                                    $("#gameResults").html(player1+"<br>Wins!!"); 
                                     player1W=1;player2W=0;
                                 }
                             }else if(player1result=="Rock"){
                                 if(player2result=="Scissors"){
-                                    $("#gameResults").html(player1+"<br>Wins!!"); 
                                     player1W=1;player2W=0;
                                 }else if(player2result=="Paper"){
-                                    $("#gameResults").html(player2+"<br>Wins!!");
                                     player1W=0;player2W=1;
                                 }else if(player2result=="Rock"){
-                                    $("#gameResults").html("Its a Tie!!"); 
                                     player1W=0;player2W=0;
                                 }
                             }
                             if(uniqueplayers.length==2){
                                 database.ref("/player2").once("value").then(function(getplayer2) {
                                     player2=getplayer2.val().name;
-                                
+                                    $("#greeting").text(player1+"'s Final Results!");
                                     if(player1W==1){
                                         $("#player1Game").css("border-color", "red"); 
-                                        $("#player1Game").html(player1+"<br>The Winner!!"); 
-                                        $("#player2Game").html(player2+"<br>Well not this time!!"); 
+                                        $("#player1Game").html(player1+" chose "+player1result); 
+                                        $("#player2Game").html(player2+" chose "+player2result); 
+                                        $("#gameResults").html(player1+"<br>Wins!!"); 
                                     }
                                     else if(player2W==1){
                                         $("#player2Game").css("border-color", "red"); 
-                                        $("#player2Game").html(player2+"<br>The Winner!!"); 
-                                        $("#player1Game").html(player1+"<br>Well not this time!!"); 
+                                        $("#player2Game").html(player2+" chose "+player2result); 
+                                        $("#player1Game").html(player1+" chose "+player1result); 
+                                        $("#gameResults").html(player2+"<br>Wins!!"); 
+                                    }
+                                    else if(player1W==0 && player2W==0){
+                                        $("#gameResults").html("Its a Tie!!"); 
+                                        $("#player2Game").html(player2+" chose "+player2result); 
+                                        $("#player1Game").html(player1+" chose "+player1result); 
                                     }
                                 });
                             }
                             if(uniqueplayers.length==1){
+                                $("#greeting").text(player2+"'s Final Results!");
                                 if(player1W==1){
                                     $("#player1Game").css("border-color", "red"); 
-                                    $("#player1Game").html(player1+"<br>The Winner!!"); 
-                                    $("#player2Game").html(player2+"<br>Well not this time!!"); 
+                                    $("#player1Game").html(player1+" chose "+player1result); 
+                                    $("#player2Game").html(player2+" chose "+player2result); 
+                                    $("#gameResults").html(player1+"<br>Wins!!"); 
                                 }
                                 else if(player2W==1){
                                     $("#player2Game").css("border-color", "red"); 
-                                    $("#player2Game").html(player2+"<br>The Winner!!"); 
-                                    $("#player1Game").html(player1+"<br>Well not this time!!"); 
+                                    $("#player2Game").html(player2+" chose "+player2result); 
+                                    $("#player1Game").html(player1+" chose "+player1result); 
+                                    $("#gameResults").html(player2+"<br>Wins!!"); 
                                 }  
+                                else if(player1W==0 && player2W==0){
+                                    $("#gameResults").html("Its a Tie!!"); 
+                                    $("#player2Game").html(player2+" chose "+player2result); 
+                                    $("#player1Game").html(player1+" chose "+player1result); 
+                                }
                             }                            
                         }
                     });
