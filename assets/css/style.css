@@ -8,8 +8,8 @@
 #greeting{
     text-align: center;
     font-weight: bold;
-    color: blue;
-    font-size: 25px;
+    color: black;
+    font-size: 20px;
 }
 #chat{
     width: 40%;
@@ -33,7 +33,7 @@ body{
     background-size: cover;
     
     border-color: rgb(0, 82, 102);
-    font-size: 25px;
+    font-size: 20px;
 
 }
 

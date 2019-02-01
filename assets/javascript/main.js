@@ -99,7 +99,6 @@ $(document).ready(function() {
    
 
     connectionsRef.on("value", function(snapshot) {
-         
         $("#player1Game").html("Waiting for player1");
         $("#player2Game").html("Waiting for player2");
 
@@ -281,12 +280,12 @@ $(document).ready(function() {
                 event.preventDefault();
                 message=$("#chat").val();
                 $("#chat").val("");
-
+                
                 if (message){
-                    if (uniqueplayers.length==2){
+                    if ((snapshot.numChildren()==1) || (uniqueplayers.length==2)){
                         message="Player1: "+message; 
                     }
-                    if (uniqueplayers.length==1){
+                    if ((uniqueplayers.length==1) && (snapshot.numChildren()>1)){
                         message="Player2: "+message; 
                     }
                     // Save new value to Firebase
