@@ -9,29 +9,31 @@
     text-align: center;
     font-weight: bold;
     color: blue;
-    font-size: 20px;
+    font-size: 25px;
 }
 #chat{
-    width: 70%;
+    width: 40%;
     background-color: antiquewhite;
     border-style: solid;
     border-color: rgb(0, 82, 102);
 }
 
 #chatBox{
-    width: 70%;
+    
     height: 200px;
     background-color: antiquewhite;
     border-style: solid;
     border-color: rgb(0, 82, 102);
+    font-size: 15px;
 
 }
 body{
-    /* background-image: url('../images/bg.jpg');
+    background-image: url('../images/bg.jpg');
     background-repeat: no-repeat;
-    background-size: cover; */
-    background-color: antiquewhite;
+    background-size: cover;
+    
     border-color: rgb(0, 82, 102);
+    font-size: 25px;
 
 }
 

@@ -1,6 +1,6 @@
 $(document).ready(function() {  
 
-    var players=[],player1result, player2result, player1, player2, player1W, player2W;
+    var players=[],player1result, player2result, player1, player2, player1W, player2W, messages=[];
     
     //function for the player to pick their answer
     function pickAnswer(idName,idName2,resultDB,player){
@@ -76,6 +76,7 @@ $(document).ready(function() {
     database.ref("/player1result").remove();
     database.ref("/player2").remove();
     database.ref("/player2result").remove();
+    database.ref("/messages").remove();
 
     var connectionsRef = database.ref("/connections");
 
@@ -114,12 +115,14 @@ $(document).ready(function() {
         database.ref("latestplayerid").set({
             id: uniqueplayers[0]
         });
- 
+        
         // Display the viewer count in the html.
         // The number of online users is the number of children in the connections list.
         var keys = Object.keys(snapshot);     
             
         $(":button").on("click", function(event){
+            event.preventDefault();
+            
             if (($(this).attr("id")=='start') ){
                 database.ref("/player1").once("value").then(function(getplayer1) {
                     var player1Exists = getplayer1.exists();
@@ -128,6 +131,7 @@ $(document).ready(function() {
                             var playerid=playerid.val();
                             if(uniqueplayers.length==1){     
                                 player1=$("#player-name").val();
+                                
                                 $("#greeting").html("Hi "+player1+" you are player1 <br>"+"It's Your Turn!!!");
                                 $("#player1Game").css("border-color", "yellow"); 
                                 $("#player1Game").html("<p>"+player1+"</p>"+"<div id='rock'>Rock</div><div id='paper'>Paper</div><div id='scissors'>Scissors</div>"+"<div id='resStat'>Wins:0 Losses:0</div>");
@@ -141,8 +145,7 @@ $(document).ready(function() {
                                     player1result=getplayer1result.val();
                                     if (player1result != ""){
                                         if(uniqueplayers.length==1){
-                                            $("#greeting").html("There is no player2, Try Again!");
-                                            setTimeout(function(){ location.reload(); }, 3000);
+                                            $("#greeting").html("waiting for player2! Once Player 2 joins repick");
                                         }
                                     }
 
@@ -150,6 +153,7 @@ $(document).ready(function() {
                             }
                             else if(uniqueplayers.length==2){   
                                 player1=$("#player-name").val();
+                                
                                 $("#greeting").html("Hi "+player1+" you are player1 <br>"+"It's Your Turn!!!");
                                 $("#player1Game").css("border-color", "yellow"); 
                                 $("#player1Game").html("<p>"+player1+"</p>"+"<div id='rock'>Rock</div><div id='paper'>Paper</div><div id='scissors'>Scissors</div>"+"<div id='resStat'>Wins:0 Losses:0</div>");
@@ -271,6 +275,40 @@ $(document).ready(function() {
                     });
                 });
             }  
+
+            //Add chat functionality
+            if (($(this).attr("id")=='send') ){
+                event.preventDefault();
+                message=$("#chat").val();
+                $("#chat").val("");
+
+                if (message){
+                    if (uniqueplayers.length==2){
+                        message="Player1: "+message; 
+                    }
+                    if (uniqueplayers.length==1){
+                        message="Player2: "+message; 
+                    }
+                    // Save new value to Firebase
+                    database.ref("messages/").push({
+                        blah:message 
+                    });
+                }
+            }
         });
+
+           //broadcast it to players
+           database.ref("/messages").on("child_added", function(playerid) {
+            messages.push(playerid.val().blah);
+            uniquemessages = messages.filter(function(item, pos) {
+                return messages.indexOf(item) == pos;
+            });
+
+            while (uniquemessages.length>4){
+                uniquemessages.splice(0,1);
+            }
+            $("#chatBox").html(uniquemessages.join("<br>"));    
+        });
+  
     });
 });
