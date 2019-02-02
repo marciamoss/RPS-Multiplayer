@@ -189,6 +189,9 @@ $(document).ready(function() {
                                     }
                                 });
                             } 
+                            else if(uniqueplayers.length==2){
+                                location.reload();
+                            }
                         });
                     }
                 });
@@ -248,6 +251,8 @@ $(document).ready(function() {
                                         $("#player2Game").html(player2+" chose "+player2result); 
                                         $("#player1Game").html(player1+" chose "+player1result); 
                                     }
+                                    setTimeout(function(){$("#greeting").text("Again!! Again!! Again!!"); }, 3000);
+                                    setTimeout(function(){location.reload(); }, 9000);
                                 });
                             }
                             if(uniqueplayers.length==1){
@@ -269,6 +274,8 @@ $(document).ready(function() {
                                     $("#player2Game").html(player2+" chose "+player2result); 
                                     $("#player1Game").html(player1+" chose "+player1result); 
                                 }
+                                setTimeout(function(){$("#greeting").text("Again!! Again!! Again!!"); }, 3000);
+                                setTimeout(function(){location.reload(); }, 6000);
                             }                            
                         }
                     });
